@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "464318207992",
+    "project_id": "gtrain-73d1b",
+    "storage_bucket": "gtrain-73d1b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464318207992:android:23d7663cc8362ccd7d280d",
+        "android_client_info": {
+          "package_name": "com.example.gtrain_training_matrix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVvMmG3MnF0D0YISQFfe0xbDQVK_PDmgo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
