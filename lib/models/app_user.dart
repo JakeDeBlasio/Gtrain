@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'user_role.dart';
+
 class AppUser {
   const AppUser({
     required this.id,
@@ -8,6 +10,10 @@ class AppUser {
     required this.account,
     required this.email,
     required this.templateIds,
+    required this.role,
+    this.supervisorId,
+    this.defaultBuilding,
+    this.defaultAccount,
     this.createdAt,
     this.updatedAt,
   });
@@ -18,6 +24,10 @@ class AppUser {
   final String account;
   final String email;
   final List<String> templateIds;
+  final UserRole role;
+  final String? supervisorId; // User ID of the supervisor
+  final String? defaultBuilding; // User's preferred default location
+  final String? defaultAccount;  // User's preferred default account
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -28,6 +38,7 @@ class AppUser {
         account: '',
         email: '',
         templateIds: [],
+        role: UserRole.user,
       );
 
   factory AppUser.fromMap(String id, Map<String, dynamic> map) {
@@ -43,6 +54,10 @@ class AppUser {
       account: (map['account'] ?? '') as String,
       email: (map['email'] ?? '') as String,
       templateIds: List<String>.from(map['templateIds'] ?? const []),
+      role: UserRole.fromString(map['role'] as String?),
+      supervisorId: map['supervisorId'] as String?,
+      defaultBuilding: map['defaultBuilding'] as String?,
+      defaultAccount: map['defaultAccount'] as String?,
       createdAt: convert(map['createdAt']),
       updatedAt: convert(map['updatedAt']),
     );
@@ -55,6 +70,10 @@ class AppUser {
       'account': account,
       'email': email,
       'templateIds': templateIds,
+      'role': role.toStorageString(),
+      'supervisorId': supervisorId,
+      'defaultBuilding': defaultBuilding,
+      'defaultAccount': defaultAccount,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
@@ -67,6 +86,10 @@ class AppUser {
     String? account,
     String? email,
     List<String>? templateIds,
+    UserRole? role,
+    String? supervisorId,
+    String? defaultBuilding,
+    String? defaultAccount,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -77,6 +100,10 @@ class AppUser {
       account: account ?? this.account,
       email: email ?? this.email,
       templateIds: templateIds ?? this.templateIds,
+      role: role ?? this.role,
+      supervisorId: supervisorId ?? this.supervisorId,
+      defaultBuilding: defaultBuilding ?? this.defaultBuilding,
+      defaultAccount: defaultAccount ?? this.defaultAccount,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

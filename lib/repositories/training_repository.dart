@@ -8,6 +8,7 @@ import '../models/app_user.dart';
 import '../models/training_assignment.dart';
 import '../models/training_item.dart';
 import '../models/training_template.dart';
+import '../models/user_role.dart';
 
 class TrainingRepository {
   TrainingRepository({FirebaseFirestore? firestore, FirebaseStorage? storage})
@@ -104,6 +105,17 @@ class TrainingRepository {
     for (final templateId in addedTemplates) {
       await applyTemplateToUser(docRef.id, templateId);
     }
+  }
+
+  /// Update a user's role
+  Future<void> updateUserRole(String userId, UserRole newRole) async {
+    await _users.doc(userId).set(
+      {
+        'role': newRole.toStorageString(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
   }
 
   Future<void> saveTemplate(TrainingTemplate template) async {
@@ -286,6 +298,98 @@ class TrainingRepository {
       referenceDate.month + training.renewalIntervalMonths,
       referenceDate.day,
     );
+  }
+
+  /// Record a completed training for multiple users with document upload
+  Future<void> recordTrainingCompletion({
+    required String trainingTitle,
+    required List<String> userIds,
+    required DateTime completedAt,
+    required PlatformFile file,
+  }) async {
+    // Create or get training
+    final trainingQuery = await _trainings
+        .where('title', isEqualTo: trainingTitle)
+        .limit(1)
+        .get();
+
+    String trainingId;
+    if (trainingQuery.docs.isNotEmpty) {
+      trainingId = trainingQuery.docs.first.id;
+    } else {
+      // Create new training
+      final newTraining = TrainingItem(
+        id: '',
+        title: trainingTitle,
+        description: 'Completed training upload',
+        renewalMode: RenewalMode.fixedDate,
+        fixedMonth: null,
+        fixedDay: null,
+        renewalIntervalMonths: 12,
+        documentName: null,
+        documentUrl: null,
+        documentPath: null,
+      );
+      await saveTraining(newTraining, file: file);
+      trainingId = newTraining.id;
+    }
+
+    // Upload document if new training
+    if (trainingQuery.docs.isEmpty) {
+      // Document already uploaded in saveTraining above
+    } else {
+      // Upload document to existing training
+      final upload = await uploadDocument(trainingId: trainingId, file: file);
+      await _trainings.doc(trainingId).set(
+        {
+          'documentName': upload.$1,
+          'documentUrl': upload.$2,
+          'documentPath': upload.$3,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+    }
+
+    // Create assignments for selected users marked as completed
+    for (final userId in userIds) {
+      // Check if assignment already exists
+      final existingQuery = await _assignments
+          .where('userId', isEqualTo: userId)
+          .where('trainingId', isEqualTo: trainingId)
+          .limit(1)
+          .get();
+
+      if (existingQuery.docs.isNotEmpty) {
+        // Update existing assignment
+        await _assignments.doc(existingQuery.docs.first.id).set(
+          {
+            'completedAt': completedAt,
+            'updatedAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
+      } else {
+        // Create new assignment
+        final training = TrainingItem.fromMap(trainingId, {
+          'title': trainingTitle,
+          'description': 'Completed training upload',
+          'renewalMode': RenewalMode.fixedDate.wireValue,
+          'renewalIntervalMonths': 12,
+        });
+        
+        await _assignments.doc().set({
+          'userId': userId,
+          'trainingId': trainingId,
+          'source': 'upload',
+          'templateId': null,
+          'assignedAt': completedAt,
+          'completedAt': completedAt,
+          'dueAt': computeNextDueDate(training, referenceDate: completedAt),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+    }
   }
 
   String _contentTypeFor(String filename) {
