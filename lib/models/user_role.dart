@@ -35,10 +35,12 @@ extension UserRoleExtension on UserRole {
         NavigationPage.compliance,
         NavigationPage.trainings,
         NavigationPage.users,
+        NavigationPage.completedTrainings,
         NavigationPage.userDetail,
       ].contains(page),
       UserRole.teammate => [
         NavigationPage.dashboard,
+        NavigationPage.completedTrainings,
         NavigationPage.userDetail,
       ].contains(page), // Teammate can only see their own training records
     };
@@ -51,6 +53,7 @@ enum NavigationPage {
   users('Users'),
   trainings('Trainings'),
   templates('Templates'),
+  completedTrainings('Completed'),
   userDetail('User Detail');
 
   const NavigationPage(this.label);

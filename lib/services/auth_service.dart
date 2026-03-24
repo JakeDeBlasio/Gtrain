@@ -26,14 +26,14 @@ class AuthService extends ChangeNotifier {
   void _initializeMockUser() {
     _currentUser = AppUser(
       id: 'mock-admin-user',
-      name: 'Admin User',
-      building: 'HQ',
-      account: 'Admin Account',
-      email: 'admin@gtrain.local',
+      name: 'DEBLASIO, JAKE',
+      building: '3411',
+      account: '18364',
+      email: 'jake.deblasio@geodis.com',
       templateIds: [],
       role: UserRole.admin,
-      defaultBuilding: 'HQ',
-      defaultAccount: 'Admin Account',
+      defaultBuilding: '3411',
+      defaultAccount: '18364',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );

@@ -7,6 +7,7 @@ import '../repositories/training_repository.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import 'compliance_matrix_screen.dart';
+import 'completed_trainings_screen.dart';
 import 'dashboard_screen.dart';
 import 'templates_screen.dart';
 import 'trainings_screen.dart';
@@ -34,7 +35,7 @@ class _TrainingMatrixShellState extends State<TrainingMatrixShell> {
     final wide = MediaQuery.sizeOf(context).width >= 1000;
     final userRole = widget.authService.currentUserRole ?? UserRole.user;
     
-    // Define all screens (indices 0-4 reserved for navigation order)
+    // Define all screens (indices 0-5 reserved for navigation order)
     final allScreens = [
       DashboardScreen(
         repository: widget.repository,
@@ -47,6 +48,7 @@ class _TrainingMatrixShellState extends State<TrainingMatrixShell> {
       ),
       TrainingsScreen(repository: widget.repository),
       TemplatesScreen(repository: widget.repository),
+      CompletedTrainingsScreen(repository: widget.repository),
     ];
 
     // Filter screens based on user role
@@ -174,6 +176,7 @@ class _TrainingMatrixShellState extends State<TrainingMatrixShell> {
       NavigationPage.users => const Icon(Icons.people_alt_outlined),
       NavigationPage.trainings => const Icon(Icons.menu_book_outlined),
       NavigationPage.templates => const Icon(Icons.auto_awesome_motion_outlined),
+      NavigationPage.completedTrainings => const Icon(Icons.check_circle_outlined),
       _ => const Icon(Icons.help_outline),
     };
   }
